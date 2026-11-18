@@ -145,8 +145,8 @@ function formats(r,g,b){
   const l=(mx+mn)/2,sl=d?d/(1-Math.abs(2*l-1)):0,sv=mx?d/mx:0,k=1-mx;
   const c=k<1?(1-R-k)/(1-k):0,m=k<1?(1-G-k)/(1-k):0,y=k<1?(1-B-k)/(1-k):0;
   return [['HEX','#'+[r,g,b].map(n=>n.toString(16).padStart(2,'0')).join('').toUpperCase()],
-    ['RGB',`rgb(${r}, ${g}, ${b})`],['CMYK',`cmyk(${P(c)}%, ${P(m)}%, ${P(y)}%, ${P(k)}%)`],
-    ['HSV',`hsv(${h}, ${P(sv)}%, ${P(mx)}%)`],['HSL',`hsl(${h}, ${P(sl)}%, ${P(l)}%)`]];
+    ['RGB',`${r}, ${g}, ${b}`],['CMYK',`${P(c)}%, ${P(m)}%, ${P(y)}%, ${P(k)}%`],
+    ['HSV',`${h}, ${P(sv)}%, ${P(mx)}%`],['HSL',`${h}, ${P(sl)}%, ${P(l)}%`]];
 }
 const hex=(r,g,b)=>formats(r,g,b)[0][1];
 
