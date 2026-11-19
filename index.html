@@ -1,267 +1,306 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>色取 · Colour Picker</title>
+<title>録画 · Recorder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{
-  --ink:#0b2b21;      /* deep pine background */
-  --deep:#07201a;
-  --band:#5f917c;     /* dusty band */
-  --paper:#e8f6ee;    /* pale text */
-  --accent:#8fe3b2;   /* accent */
-  --mute:#3c6a57;
-  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);
-  --safe-l:env(safe-area-inset-left,0px);--safe-r:env(safe-area-inset-right,0px);
-  color-scheme:dark;
+  --ink:#04262e; --ink2:#09404b; --band:#2b7886; --paper:#e4f8f7; --accent:#7ff0dc; --rec:#ff6b6b;
+  --bh:clamp(56px,11vh,120px);
+  color-scheme:dark; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--ink);
 }
-*{box-sizing:border-box;margin:0}
-[hidden]{display:none!important}
-html,body{height:100%;overflow:hidden;background:var(--ink);color:var(--paper);font-family:"Source Serif 4",Georgia,serif}
-:focus-visible{outline:3px solid var(--paper);outline-offset:3px}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;overflow:hidden;display:grid;grid-template-rows:var(--bh) minmax(0,1fr) var(--bh);
+  background:var(--ink);color:var(--paper);font-family:"Source Serif 4",Georgia,serif;
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+body.studio{--bh:clamp(24px,4vh,34px)}
+body.studio footer{padding-bottom:3px}
+body.studio footer p{font-size:12px}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:100;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.band{background:var(--band);margin:0 calc(-1*env(safe-area-inset-left,0px)) 0 calc(-1*env(safe-area-inset-right,0px))}
+footer.band{display:grid;place-items:end center;padding-bottom:clamp(8px,1.6vh,18px)}
+footer p{margin:0;font-style:italic;font-size:clamp(13px,1.9vmin,18px);padding:0 16px;text-align:center}
+main{min-height:0;display:grid;place-items:center;padding:0 clamp(12px,3vw,32px)}
 button{font:inherit;color:inherit;cursor:pointer}
-.tex{position:fixed;inset:0;z-index:100;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(255,255,255,.07) 0 1px,transparent 1px 3px)}
-body.in .tex{display:none}
 
 /* landing */
-.land{height:100dvh;display:grid;grid-template-rows:clamp(52px,15dvh,170px) minmax(0,1fr) clamp(64px,15dvh,150px);padding:0 var(--safe-r) 0 var(--safe-l)}
-.band{background:var(--band)}
-.top{padding-top:var(--safe-t);margin-left:calc(-1*var(--safe-l));margin-right:calc(-1*var(--safe-r))}
-.bot{display:flex;align-items:flex-end;justify-content:center;text-align:center;padding:0 1rem calc(var(--safe-b) + clamp(.6rem,2.4dvh,1.6rem));margin-left:calc(-1*var(--safe-l));margin-right:calc(-1*var(--safe-r))}
-.bot p{font-style:italic;font-size:clamp(.95rem,1.2vw + .6rem,1.6rem);color:var(--paper)}
-.mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.3rem,1.4dvh,1rem);padding:0 1rem;min-height:0}
-.ro{font-style:italic;letter-spacing:.55em;margin-right:-.55em;color:var(--accent);font-size:clamp(.85rem,2.4dvh,1.5rem);white-space:nowrap}
-.kj{font-family:"Noto Serif JP","Source Serif 4",serif;font-weight:900;line-height:1;font-size:clamp(4rem,min(24vw,27dvh),14rem);color:var(--paper);letter-spacing:.02em}
-.drop{width:min(92vw,44rem);border:2px dashed var(--paper);padding:clamp(.8rem,3dvh,2rem) 1rem;text-align:center;cursor:pointer;margin-top:clamp(.2rem,1.4dvh,1rem);transition:background .2s,border-color .2s}
-.drop b{display:block;font-size:clamp(1.3rem,2.6vw + .7rem,2.6rem);font-weight:700;overflow-wrap:anywhere}
-.drop span{display:block;font-size:clamp(.9rem,1vw + .6rem,1.3rem);margin-top:.15rem}
-.drop.over,.drop:hover{background:rgba(143,227,178,.1);border-color:var(--accent)}
-.open{margin-top:clamp(.3rem,1.8dvh,1.4rem);padding:.7rem 2.6rem;border:0;background:var(--mute);color:rgba(232,246,238,.65);font-size:clamp(1.1rem,1.4vw + .6rem,1.8rem);font-weight:700;letter-spacing:.2em;cursor:not-allowed;transition:background .2s,color .2s}
-.open.ready{background:var(--accent);color:var(--ink);cursor:pointer}
+#land{display:grid;grid-template-columns:auto auto;align-items:center;justify-content:center;gap:clamp(24px,6vw,88px)}
+.ttl{display:grid;justify-items:center;gap:clamp(4px,1vh,12px);text-align:center}
+.ctl{width:min(44vw,400px);display:flex;flex-direction:column;align-items:center;gap:clamp(8px,1.6vh,16px);text-align:center}
+.ro{margin:0;font-style:italic;letter-spacing:.55em;padding-left:.55em;color:var(--accent);opacity:.9;font-size:clamp(12px,2.2vmin,20px)}
+h1{margin:0;font:900 clamp(70px,min(24vmin,17vw),220px)/1 "Noto Serif JP","Source Serif 4",serif;color:var(--paper)}
+.drop{width:100%;border:2px dashed var(--paper);padding:clamp(12px,2.4vh,26px) 16px;display:grid;gap:6px;justify-items:center}
+.drop b{font-size:clamp(20px,3.6vmin,34px);font-weight:700}
+.drop span{font-size:clamp(14px,2vmin,18px)}
+.chips{display:flex;gap:10px;margin-top:8px}
+.chip{background:transparent;border:1.5px solid rgba(228,248,247,.6);padding:6px 18px;font-size:clamp(14px,2vmin,18px)}
+.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--ink)}
+.go{margin-top:clamp(2px,1vh,10px);border:0;padding:clamp(8px,1.4vh,14px) clamp(34px,6vw,56px);font-weight:700;font-size:clamp(16px,2.6vmin,24px);
+  letter-spacing:.3em;padding-left:calc(clamp(34px,6vw,56px) + .3em);background:var(--paper);color:var(--ink);transition:background .2s,color .2s}
+.go:disabled{background:rgba(228,248,247,.22);color:rgba(228,248,247,.55);cursor:not-allowed}
+#err{margin:0;min-height:1.3em;font-size:14px;color:var(--rec)}
 
-/* tool */
-#tool{height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) clamp(250px,26vw,330px);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"bar bar" "stage panel" "vc panel";padding:var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l)}
-.bar{grid-area:bar;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;padding:.6rem .8rem;background:var(--ink);border-bottom:1px solid rgba(232,246,238,.15)}
-.sp{flex:1}
-.btn{padding:.4rem .8rem;background:transparent;border:1px solid rgba(232,246,238,.4);border-radius:4px;font-size:.95rem}
-.btn:hover{border-color:var(--accent)}
-.btn[aria-pressed=true]{background:var(--accent);color:var(--ink);border-color:var(--accent)}
-.zc{display:flex;gap:.3rem}
-#stage{grid-area:stage;position:relative;overflow:hidden;background:var(--deep);cursor:crosshair;touch-action:none;user-select:none}
-#stage.zm{cursor:grab}
-#inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;transform-origin:0 0}
-#inner img,#inner video{max-width:100%;max-height:100%;display:block;-webkit-user-drag:none;pointer-events:none}
-.loupe{position:absolute;z-index:5;pointer-events:none;background:var(--ink);border:2px solid var(--paper);padding:3px;text-align:center;font-size:.8rem;width:109px}
-.loupe canvas{display:block;width:99px;height:99px;image-rendering:pixelated}
-.vc{grid-area:vc;display:flex;align-items:center;gap:.5rem;padding:.6rem .8rem;background:var(--ink);border-top:1px solid rgba(232,246,238,.15)}
-.vc input{flex:1;min-width:0;accent-color:var(--accent)}
-.vc time{font-variant-numeric:tabular-nums;font-size:.9rem;min-width:7.5em;text-align:right}
-.panel{grid-area:panel;background:var(--ink);border-left:1px solid rgba(232,246,238,.15);padding:.8rem;display:flex;flex-direction:column;gap:.5rem;overflow:auto}
-.sw{height:clamp(70px,16dvh,130px);border:1px solid rgba(232,246,238,.4);display:flex;align-items:center;justify-content:center;font-style:italic;text-align:center;padding:.5rem;background:var(--deep)}
-.row{display:grid;grid-template-columns:3.4em 1fr auto;gap:.5rem;align-items:center;text-align:left;padding:.5rem .6rem;background:rgba(232,246,238,.06);border:1px solid rgba(232,246,238,.2);border-radius:4px}
-.row:hover:not(:disabled){border-color:var(--accent)}
-.row:disabled{opacity:.5;cursor:default}
-.row b{font-size:.85rem;color:var(--accent)}
-.row code{font:inherit;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-.row i{font-size:.8rem;opacity:.7}
-.hist{display:flex;flex-wrap:wrap;gap:.35rem}
-.hist button{width:1.7rem;height:1.7rem;border:1px solid rgba(232,246,238,.5);border-radius:3px;padding:0}
-.toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 1.2rem);transform:translateX(-50%);background:var(--accent);color:var(--ink);padding:.5rem 1rem;font-weight:700;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
-.toast.on{opacity:1}
-@media(max-width:760px){
-  #tool{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"bar" "stage" "vc" "panel"}
-  .panel{border-left:0;border-top:1px solid rgba(232,246,238,.15);max-height:42dvh;padding:.6rem}
-  .sw{height:48px}.row{padding:.35rem .6rem}
+/* studio */
+#studio{width:100%;height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) min(340px,36vw);gap:12px;padding:6px 0}
+.stage{min-height:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.cvw{flex:1;min-height:0;width:100%;display:grid;place-items:center}
+.cvw{container-type:size}
+canvas{width:min(100cqw,calc(100cqh*16/9));aspect-ratio:16/9;height:auto;background:#000;border:1px solid rgba(228,248,247,.3);touch-action:none;cursor:grab}
+canvas:fullscreen{width:100vw;height:100vh;aspect-ratio:auto;object-fit:contain;border:0;background:#000}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;width:100%}
+.btn{background:transparent;border:1.5px solid rgba(228,248,247,.5);padding:5px 12px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.on{background:var(--paper);color:var(--ink)}
+#rb{background:var(--accent);border-color:var(--accent);color:var(--ink);font-weight:700;padding:6px 18px}
+#rb.rec{background:var(--rec);border-color:var(--rec)}
+#tm{font-variant-numeric:tabular-nums;min-width:4.5ch}
+#st{font-size:13px;font-style:italic;flex-basis:100%;text-align:center;min-height:1.2em;margin:0}
+#out{display:flex;align-items:center;gap:10px;font-size:13px}
+#out video{height:30px;border:1px solid rgba(228,248,247,.3)}
+#layers{overflow-y:auto;min-height:0;display:grid;gap:10px;align-content:start;padding-right:4px}
+.card{border:1px solid rgba(228,248,247,.28);background:rgba(9,64,75,.55);padding:6px 10px;display:grid;gap:4px;font-size:12px;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px}
+.card.on{border-color:var(--accent)}
+.card header{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between}
+.card h3{margin:0;font-size:16px}
+.card .ic{display:flex;flex-wrap:wrap;gap:4px}
+.card .ic button{background:transparent;border:1px solid rgba(228,248,247,.4);padding:2px 8px;font-size:12px}
+.card label{display:grid;gap:0;font-size:11px}
+.card label.ck{display:flex;align-items:center;gap:6px;font-size:12px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.hint{margin:0;font-size:14px;font-style:italic;opacity:.8;padding:6px 2px}
+@media (max-width:780px){
+  #studio{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
+  canvas{width:100%}
+  .cvw{flex:none;container-type:normal}
 }
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:700px){
+  #land{grid-template-columns:1fr;gap:clamp(8px,2vh,20px)}
+  .ctl{width:min(92vw,420px)}
+  h1{font-size:clamp(64px,20vw,120px)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<div class="tex" aria-hidden="true"></div>
+<div class="band" id="top" aria-hidden="true"></div>
 
-<main class="land" id="land">
-  <div class="band top" id="top" aria-hidden="true"></div>
-  <section class="mid">
-    <p class="ro">ka rā . pik kā .</p>
-    <h1 class="kj" lang="ja">色取</h1>
-    <p class="ro">ai . do . ro . pā .</p>
-    <div class="drop" id="drop" role="button" tabindex="0" aria-label="Choose an image or video">
-      <b id="dropT">Drop an image or video</b>
-      <span id="dropS">or tap to choose a file, or paste with Ctrl+V</span>
+<main>
+  <section id="land">
+    <div class="ttl"><p class="ro">ro ku . ga .</p>
+    <h1 lang="ja">録画</h1>
+    <p class="ro">re · kō · dā .</p></div>
+    <div class="ctl">
+    <div class="drop" role="group" aria-label="Choose sources">
+      <b>Choose what to record</b>
+      <span>webcam, screen, or both</span>
+      <div class="chips">
+        <button class="chip" id="cCam" aria-pressed="false">Webcam</button>
+        <button class="chip" id="cScr" aria-pressed="false">Screen</button>
+      </div>
     </div>
-    <input type="file" id="file" accept="image/*,video/*" hidden>
-    <button class="open" id="open" disabled>Open</button>
+    <button class="go" id="open" disabled>Open</button>
+    <p id="err" role="alert"></p>
+    </div>
   </section>
-  <div class="band bot" id="bot"><p>Pick any colour from a picture or video, right in your browser.</p></div>
+
+  <section id="studio" hidden>
+    <div class="stage">
+      <div class="cvw"><canvas id="cv" width="1280" height="720" aria-label="Recording preview. Drag layers to move them, scroll to resize."></canvas></div>
+      <div class="bar">
+        <button class="btn" id="rb" disabled>Record</button>
+        <span id="tm">00:00</span>
+        <button class="btn" id="aCam">Add webcam</button>
+        <button class="btn" id="aScr">Add screen</button>
+        <button class="btn" id="fs">Full screen</button>
+        <div id="out" hidden></div>
+        
+      </div>
+    </div>
+    <aside id="layers" aria-label="Layers"></aside>
+  </section>
 </main>
 
-<section id="tool" hidden>
-  <header class="bar">
-    <button class="btn" id="back">New file</button>
-    <button class="btn" id="paste">Paste</button>
-    <button class="btn" id="zoomBtn" aria-pressed="false" title="Turn zoom on or off">Zoom</button>
-    <span class="zc" id="zc" hidden>
-      <button class="btn" id="zo" aria-label="Zoom out">−</button>
-      <button class="btn" id="zi" aria-label="Zoom in">+</button>
-      <button class="btn" id="z1">Reset</button>
-    </span>
-    <span class="sp"></span>
-    <button class="btn" id="hideUi" hidden aria-pressed="false">Hide controls</button>
-  </header>
-  <div id="stage"><div id="inner"></div>
-    <div class="loupe" id="lp" hidden><canvas id="lc" width="99" height="99"></canvas><span id="lt"></span></div>
-  </div>
-  <div class="vc" id="vc" hidden>
-    <button class="btn" id="pp" aria-label="Play or pause">Play</button>
-    <button class="btn" id="fb" aria-label="Back one frame">‹</button>
-    <button class="btn" id="ff" aria-label="Forward one frame">›</button>
-    <input type="range" id="seek" min="0" max="1" step="0.01" value="0" aria-label="Scrub video">
-    <time id="tm">0:00.00</time>
-  </div>
-  <aside class="panel" aria-label="Picked colour">
-    <div class="sw" id="sw">Click the picture to pick a colour</div>
-    <div id="rows"></div>
-    <div class="hist" id="hist" aria-label="Recent colours"></div>
-  </aside>
-</section>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="band"><p role="status">Record your screen and webcam, right in your browser.</p></footer>
 
 <script>
-const $=i=>document.getElementById(i);
+const $=s=>document.querySelector(s), W=1280, H=720, cv=$('#cv'), c=cv.getContext('2d');
+const FILT='filter' in c, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+let layers=[], sel=null, ac, dst, rec, chunks=[], tick, t0, blob, uid=0, drag=null, outUrl;
+
 /* torn edges */
-function torn(el,top){const n=40,p=[];for(let i=0;i<=n;i++){const x=(top?100-i*100/n:i*100/n).toFixed(1);const y=top?55+Math.random()*45:Math.random()*45;p.push(x+'% '+y.toFixed(1)+'%')}
-  el.style.clipPath='polygon('+(top?'0 0,100% 0,':'')+p.join(',')+(top?'':',100% 100%,0 100%')+')'}
-torn($('top'),true);torn($('bot'),false);
-
-/* colour maths */
-const P=x=>Math.round(x*100);
-function formats(r,g,b){
-  const R=r/255,G=g/255,B=b/255,mx=Math.max(R,G,B),mn=Math.min(R,G,B),d=mx-mn;
-  let h=0;if(d){h=mx==R?((G-B)/d)%6:mx==G?(B-R)/d+2:(R-G)/d+4;h=Math.round(h*60);if(h<0)h+=360}
-  const l=(mx+mn)/2,sl=d?d/(1-Math.abs(2*l-1)):0,sv=mx?d/mx:0,k=1-mx;
-  const c=k<1?(1-R-k)/(1-k):0,m=k<1?(1-G-k)/(1-k):0,y=k<1?(1-B-k)/(1-k):0;
-  return [['HEX','#'+[r,g,b].map(n=>n.toString(16).padStart(2,'0')).join('').toUpperCase()],
-    ['RGB',`${r}, ${g}, ${b}`],['CMYK',`${P(c)}%, ${P(m)}%, ${P(y)}%, ${P(k)}%`],
-    ['HSV',`${h}, ${P(sv)}%, ${P(mx)}%`],['HSL',`${h}, ${P(sl)}%, ${P(l)}%`]];
+function torn(el,top){
+  const n=36,p=[];
+  for(let i=0;i<=n;i++){const y=top?52+Math.random()*48:Math.random()*48;p.push(`${(i/n*100).toFixed(1)}% ${y.toFixed(1)}%`)}
+  p.reverse();
+  el.style.clipPath=top?`polygon(0 0,100% 0,${p.join(',')})`:`polygon(0 100%,100% 100%,${p.join(',')})`;
 }
-const hex=(r,g,b)=>formats(r,g,b)[0][1];
+torn($('#top'),true); torn($('footer'),false);
 
-/* copy */
-let tt;function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1400)}
-function copy(v,label){
-  const ok=()=>toast('Copied '+label);
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,()=>fb())}else fb();
-  function fb(){try{const t=document.createElement('textarea');t.value=v;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();ok()}catch(e){toast('Copy blocked: '+v)}}
+/* landing */
+const want={cam:false,scr:false};
+function chip(btn,k){btn.onclick=()=>{want[k]=!want[k];btn.setAttribute('aria-pressed',want[k]);$('#open').disabled=!(want.cam||want.scr)}}
+chip($('#cCam'),'cam'); chip($('#cScr'),'scr');
+$('#open').onclick=async()=>{
+  document.body.classList.add('studio'); $('#land').hidden=true; $('#studio').hidden=false;
+  torn($('#top'),true); torn($('footer'),false);
+  if(want.scr) await add('scr'); if(want.cam) await add('cam');
+};
+$('#aCam').onclick=()=>add('cam'); $('#aScr').onclick=()=>add('scr');
+function fs(){
+  if(document.fullscreenElement)return document.exitFullscreen();
+  (cv.requestFullscreen?cv.requestFullscreen():Promise.reject()).catch(()=>msg('Full screen is blocked here. Open the page in its own tab.'));
 }
+$('#fs').onclick=fs; cv.addEventListener('dblclick',fs);
+const msg=t=>{$('#err').textContent=t; if(document.body.classList.contains('studio'))$('footer p').textContent=t};
 
-/* panel */
-let hist=[];
-function drawRows(rgb){
-  $('rows').innerHTML='';
-  const f=rgb?formats(...rgb):['HEX','RGB','CMYK','HSV','HSL'].map(n=>[n,'—']);
-  f.forEach(([n,v])=>{const b=document.createElement('button');b.className='row';b.disabled=!rgb;
-    b.innerHTML=`<b>${n}</b><code>${v}</code><i>Copy</i>`;b.onclick=()=>copy(v,n);$('rows').appendChild(b)});
-}
-drawRows(null);
-function setColor(r,g,b,keep){
-  $('sw').style.background=`rgb(${r},${g},${b})`;$('sw').textContent='';drawRows([r,g,b]);
-  if(keep)return;
-  hist=hist.filter(c=>c.join()!=[r,g,b].join());hist.unshift([r,g,b]);hist=hist.slice(0,12);
-  $('hist').innerHTML='';hist.forEach(c=>{const b2=document.createElement('button');b2.style.background=`rgb(${c})`;b2.title=hex(...c);b2.setAttribute('aria-label','Recent colour '+hex(...c));b2.onclick=()=>setColor(...c,true);$('hist').appendChild(b2)});
-}
-
-/* media */
-const src=document.createElement('canvas'),sx=src.getContext('2d',{willReadFrequently:true});
-let media=null,isVid=false,url=null,z=1,tx=0,ty=0,zoomOn=false;
-const inner=$('inner'),st=$('stage');
-function apply(){inner.style.transform=`translate(${tx}px,${ty}px) scale(${z})`;if(media)media.style.imageRendering=z>4?'pixelated':'auto'}
-function load(f){
-  if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);inner.innerHTML='';media=null;
-  isVid=f.type.startsWith('video/');
-  const el=document.createElement(isVid?'video':'img');
-  if(isVid){el.muted=true;el.playsInline=true;el.preload='auto';el.loop=true}
-  el.onerror=()=>toast('Could not open that file');
-  const ready=()=>{
-    if(isVid){src.width=el.videoWidth;src.height=el.videoHeight;$('seek').max=el.duration||1}
-    else{src.width=el.naturalWidth;src.height=el.naturalHeight;sx.drawImage(el,0,0)}
-  };
-  el[isVid?'onloadedmetadata':'onload']=ready;
-  el.src=url;inner.appendChild(el);media=el;
-  $('vc').hidden=!isVid;$('hideUi').hidden=!isVid;$('hideUi').setAttribute('aria-pressed','false');$('hideUi').textContent='Hide controls';
-  if(isVid){
-    el.ontimeupdate=()=>{$('seek').value=el.currentTime;$('tm').textContent=tf(el.currentTime)};
-    el.onplay=()=>$('pp').textContent='Pause';el.onpause=()=>$('pp').textContent='Play';
-    $('pp').textContent='Play';
+/* sources */
+async function add(kind){
+  if(layers.some(l=>l.kind===kind)){msg(`${kind==='cam'?'Webcam':'Screen'} is already added.`);return}
+  try{
+    ac=ac||new AudioContext(); dst=dst||ac.createMediaStreamDestination(); ac.resume();
+    let s;
+    if(kind==='cam'){
+      const v={width:{ideal:1280},height:{ideal:720}};
+      try{s=await navigator.mediaDevices.getUserMedia({video:v,audio:{echoCancellation:true,noiseSuppression:true}})}
+      catch(e){s=await navigator.mediaDevices.getUserMedia({video:v})}
+    }else s=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:true});
+    const v=document.createElement('video'); v.muted=true; v.playsInline=true; v.srcObject=s; await v.play();
+    const L={id:++uid,kind,name:kind==='cam'?'Webcam':'Screen',v,s,x:0,y:0,w:1,zoom:1,px:.5,py:.5,vol:100,mute:false,show:true,
+      retouch:kind==='cam',smooth:.5,bright:.3,warm:.3,mirror:kind==='cam'};
+    if(s.getAudioTracks().length){
+      L.g=ac.createGain(); L.src=ac.createMediaStreamSource(new MediaStream(s.getAudioTracks())); L.src.connect(L.g); L.g.connect(dst);
+    }
+    s.getVideoTracks()[0].addEventListener('ended',()=>remove(L));
+    kind==='scr'?layers.unshift(L):layers.push(L);
+    if(layers.length===2) pip(layers.find(l=>l.kind==='cam'));
+    sel=L; render(); msg('Drag a layer to move it. Scroll over it to resize.');
+  }catch(e){
+    msg(e&&e.name==='NotAllowedError'?'Permission was denied. Allow access and try again, or open this page in its own tab.':`Couldn’t start the ${kind==='cam'?'webcam':'screen capture'}. ${e&&e.message||''}`);
   }
-  z=1;tx=ty=0;apply();
 }
-const tf=t=>Math.floor(t/60)+':'+(t%60).toFixed(2).padStart(5,'0');
-$('pp').onclick=()=>media.paused?media.play():media.pause();
-$('seek').oninput=e=>{media.currentTime=+e.target.value};
-const step=d=>{media.pause();media.currentTime=Math.max(0,Math.min(media.duration,media.currentTime+d/30))};
-$('fb').onclick=()=>step(-1);$('ff').onclick=()=>step(1);
-$('hideUi').onclick=()=>{const h=!$('vc').hidden;$('vc').hidden=h;$('hideUi').setAttribute('aria-pressed',h);$('hideUi').textContent=h?'Show controls':'Hide controls'};
-
-/* zoom */
-function zoomAt(f,mx,my){const nz=Math.max(1,Math.min(40,z*f));f=nz/z;tx=mx-(mx-tx)*f;ty=my-(my-ty)*f;z=nz;if(z==1){tx=ty=0}apply()}
-$('zoomBtn').onclick=()=>{zoomOn=!zoomOn;$('zoomBtn').setAttribute('aria-pressed',zoomOn);$('zc').hidden=!zoomOn;st.classList.toggle('zm',zoomOn);if(!zoomOn){z=1;tx=ty=0;apply()}};
-const mid=()=>[st.clientWidth/2,st.clientHeight/2];
-$('zi').onclick=()=>zoomAt(1.5,...mid());$('zo').onclick=()=>zoomAt(1/1.5,...mid());$('z1').onclick=()=>{z=1;tx=ty=0;apply()};
-st.addEventListener('wheel',e=>{if(!zoomOn||!media)return;e.preventDefault();const r=st.getBoundingClientRect();zoomAt(e.deltaY<0?1.25:.8,e.clientX-r.left,e.clientY-r.top)},{passive:false});
-
-/* picking */
-function locate(e){if(!media||!src.width)return null;const r=media.getBoundingClientRect();
-  const x=Math.floor((e.clientX-r.left)/r.width*src.width),y=Math.floor((e.clientY-r.top)/r.height*src.height);
-  return x>=0&&y>=0&&x<src.width&&y<src.height?{x,y}:null}
-const sync=()=>{if(isVid)sx.drawImage(media,0,0)};
-const lc=$('lc').getContext('2d');lc.imageSmoothingEnabled=false;
-function loupe(e){
-  const p=locate(e),lp=$('lp');if(!p){lp.hidden=true;return}
-  sync();const d=sx.getImageData(p.x-5,p.y-5,11,11).data;lc.fillStyle='#07201a';lc.fillRect(0,0,99,99);
-  for(let i=0;i<121;i++){if(d[i*4+3]){lc.fillStyle=`rgb(${d[i*4]},${d[i*4+1]},${d[i*4+2]})`;lc.fillRect(i%11*9,Math.floor(i/11)*9,9,9)}}
-  lc.strokeStyle='#fff';lc.lineWidth=2;lc.strokeRect(46,46,9,9);lc.strokeStyle='#000';lc.lineWidth=1;lc.strokeRect(44.5,44.5,12,12);
-  const c=d.slice(60*4,60*4+3);$('lt').textContent=hex(c[0],c[1],c[2]);
-  const r=st.getBoundingClientRect();let lx=e.clientX-r.left+18,ly=e.clientY-r.top+18;
-  if(lx+115>r.width)lx-=150;if(ly+135>r.height)ly-=155;
-  lp.style.left=Math.max(0,lx)+'px';lp.style.top=Math.max(0,ly)+'px';lp.hidden=false;
+function pip(L){
+  if(!L)return; L.w=.26; const h=L.w*W*L.v.videoHeight/L.v.videoWidth;
+  L.x=W-L.w*W-28; L.y=H-h-28;
 }
-let dn=null;
-st.onpointerdown=e=>{dn={x:e.clientX,y:e.clientY,tx,ty,m:false};st.setPointerCapture(e.pointerId)};
-st.onpointermove=e=>{
-  if(dn){const dx=e.clientX-dn.x,dy=e.clientY-dn.y;if(Math.hypot(dx,dy)>4)dn.m=true;if(dn.m&&zoomOn){tx=dn.tx+dx;ty=dn.ty+dy;apply()}}
-  loupe(e)};
-st.onpointerup=e=>{if(dn&&!dn.m){const p=locate(e);if(p){sync();const d=sx.getImageData(p.x,p.y,1,1).data;setColor(d[0],d[1],d[2])}}dn=null};
-st.onpointerleave=()=>{$('lp').hidden=true};
-
-/* import */
-let pending=null;
-const isMedia=f=>f&&/^(image|video)\//.test(f.type);
-function setPending(f){
-  if(!isMedia(f)){toast('Please choose an image or video');return}
-  pending=f;$('dropT').textContent=f.name||'Pasted image';$('dropS').textContent='Ready. Press Open, or choose another file.';
-  $('open').disabled=false;$('open').classList.add('ready');
+function remove(L){
+  L.s.getTracks().forEach(t=>t.stop()); try{L.src&&L.src.disconnect();L.g&&L.g.disconnect()}catch(e){}
+  layers=layers.filter(l=>l!==L); if(sel===L)sel=layers[layers.length-1]||null; render();
 }
-function handle(f){if(!isMedia(f)){toast('Please choose an image or video');return}
-  if(!$('tool').hidden)load(f);else setPending(f)}
-$('drop').onclick=()=>$('file').click();
-$('drop').onkeydown=e=>{if(e.key=='Enter'||e.key==' '){e.preventDefault();$('file').click()}};
-$('file').onchange=e=>{handle(e.target.files[0]);e.target.value=''};
-['dragenter','dragover'].forEach(n=>addEventListener(n,e=>{e.preventDefault();$('drop').classList.add('over')}));
-['dragleave','drop'].forEach(n=>addEventListener(n,e=>{e.preventDefault();$('drop').classList.remove('over')}));
-addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)handle(f)});
-addEventListener('paste',e=>{const it=[...(e.clipboardData?e.clipboardData.items:[])].find(i=>i.kind=='file'&&isMedia({type:i.type}));if(it){e.preventDefault();handle(it.getAsFile())}});
-$('paste').onclick=async()=>{
-  try{for(const i of await navigator.clipboard.read()){const t=i.types.find(t=>t.startsWith('image/'));if(t){const b=await i.getType(t);handle(new File([b],'Pasted image',{type:t}));return}}toast('No image on the clipboard')}
-  catch(e){toast('Press Ctrl+V to paste instead')}};
-$('open').onclick=()=>{if(!pending)return;$('land').hidden=true;$('tool').hidden=false;document.body.classList.add('in');load(pending)};
-$('back').onclick=()=>{if(isVid&&media)media.pause();$('tool').hidden=true;$('land').hidden=false;document.body.classList.remove('in')};
-addEventListener('keydown',e=>{
-  if($('tool').hidden||!isVid||/^(BUTTON|INPUT)$/.test(e.target.tagName))return;
-  if(e.key==' '){e.preventDefault();$('pp').click()}else if(e.key=='ArrowLeft')step(-1);else if(e.key=='ArrowRight')step(1)});
+const gain=L=>{if(L.g)L.g.gain.value=L.mute?0:L.vol/100};
+
+/* layer panel */
+const byId=id=>layers.find(l=>l.id==id);
+function sl(L,k,lab,min,max,step){return `<label>${lab}<input type="range" data-id="${L.id}" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${L[k]}"></label>`}
+function ck(L,k,lab){return `<label class="ck"><input type="checkbox" data-id="${L.id}" data-k="${k}" ${L[k]?'checked':''}>${lab}</label>`}
+function render(){
+  $('#rb').disabled=!layers.length && !(rec&&rec.state==='recording');
+  $('#layers').innerHTML=layers.length?[...layers].reverse().map(L=>`
+  <article class="card ${L===sel?'on':''}" data-id="${L.id}">
+    <header><h3>${L.name}</h3><div class="ic">
+      <button data-act="show">${L.show?'Hide':'Show'}</button>
+      ${L.g?`<button data-act="mute">${L.mute?'Unmute':'Mute'}</button>`:''}
+      <button data-act="up">Raise</button><button data-act="dn">Lower</button><button data-act="del">Remove</button></div></header>
+    ${L!==sel?'':`<div class="grid">${L.g?sl(L,'vol','Volume',0,150,1):''}${sl(L,'w','Size',.1,1.5,.01)}${sl(L,'zoom','Crop zoom',1,4,.01)}${sl(L,'px','Pan ↔',0,1,.01)}${sl(L,'py','Pan ↕',0,1,.01)}${L.kind==='cam'?ck(L,'mirror','Mirror')+ck(L,'retouch','Retouch')+(FILT?sl(L,'smooth','Smooth',0,1,.01)+sl(L,'bright','Brighten',0,1,.01)+sl(L,'warm','Warmth',0,1,.01):''):''}</div>`}
+  </article>`).join(''):'<p class="hint">No sources yet. Add a webcam or screen below the preview.</p>';
+}
+$('#layers').addEventListener('input',e=>{
+  const t=e.target,L=byId(t.dataset.id); if(!L||!t.dataset.k)return;
+  L[t.dataset.k]=t.type==='checkbox'?t.checked:+t.value; if(t.dataset.k==='vol')gain(L);
+});
+$('#layers').addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'), card=e.target.closest('.card'); if(!card)return;
+  const L=byId(card.dataset.id); if(!L)return;
+  if(!b){if(sel!==L){sel=L;render()}return}
+  const a=b.dataset.act,i=layers.indexOf(L);
+  if(a==='show')L.show=!L.show;
+  if(a==='mute'){L.mute=!L.mute;gain(L)}
+  if(a==='up'&&i<layers.length-1)[layers[i],layers[i+1]]=[layers[i+1],layers[i]];
+  if(a==='dn'&&i>0)[layers[i],layers[i-1]]=[layers[i-1],layers[i]];
+  if(a==='del')return remove(L);
+  sel=L; render();
+});
+
+/* canvas interaction */
+const rectOf=L=>({x:L.x,y:L.y,w:L.w*W,h:L.w*W*L.v.videoHeight/L.v.videoWidth});
+const pt=e=>{const r=cv.getBoundingClientRect(),s=Math.min(r.width/W,r.height/H),ox=(r.width-W*s)/2,oy=(r.height-H*s)/2;return{x:(e.clientX-r.left-ox)/s,y:(e.clientY-r.top-oy)/s}};
+const hit=(p)=>[...layers].reverse().find(L=>{if(!L.show)return false;const r=rectOf(L);return p.x>=r.x&&p.x<=r.x+r.w&&p.y>=r.y&&p.y<=r.y+r.h});
+cv.addEventListener('pointerdown',e=>{
+  const p=pt(e),L=hit(p); if(!L)return;
+  drag={L,dx:p.x-L.x,dy:p.y-L.y}; cv.setPointerCapture(e.pointerId); cv.style.cursor='grabbing';
+  if(sel!==L){sel=L;render()}
+});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const p=pt(e);drag.L.x=p.x-drag.dx;drag.L.y=p.y-drag.dy});
+['pointerup','pointercancel'].forEach(n=>cv.addEventListener(n,()=>{drag=null;cv.style.cursor='grab'}));
+cv.addEventListener('wheel',e=>{
+  const L=hit(pt(e))||sel; if(!L)return; e.preventDefault();
+  L.w=clamp(L.w*(e.deltaY<0?1.05:.95),.1,1.5);
+  const i=document.querySelector(`[data-id="${L.id}"][data-k="w"]`); if(i)i.value=L.w;
+},{passive:false});
+
+/* compositing */
+function draw(){
+  c.filter='none'; c.globalAlpha=1; c.fillStyle='#000'; c.fillRect(0,0,W,H);
+  let any=false;
+  for(const L of layers){
+    const v=L.v; if(!L.show||v.readyState<2||!v.videoWidth)continue; any=true;
+    const vw=v.videoWidth,vh=v.videoHeight,dw=L.w*W,dh=dw*vh/vw,sw=vw/L.zoom,sh=vh/L.zoom,sx=(vw-sw)*L.px,sy=(vh-sh)*L.py;
+    c.save();
+    if(L.mirror){c.translate(L.x+dw,L.y);c.scale(-1,1)}else c.translate(L.x,L.y);
+    if(L.kind==='cam'&&c.roundRect&&L.w<.9){c.beginPath();c.roundRect(0,0,dw,dh,22);c.clip()}
+    const paint=()=>c.drawImage(v,sx,sy,sw,sh,0,0,dw,dh);
+    if(L.retouch&&FILT){
+      const tone=`brightness(${1+L.bright*.25}) saturate(${1+L.warm*.35})`;
+      c.filter=`${tone} contrast(${1-L.smooth*.06})`; paint();
+      if(L.smooth>0){c.globalAlpha=L.smooth*.65;c.filter=`blur(${Math.max(1.5,dw/110)}px) ${tone}`;paint()}
+    }else paint();
+    c.restore();
+  }
+  if(!any){c.fillStyle='#7ff0dc';c.font='italic 34px "Source Serif 4",serif';c.textAlign='center';c.fillText('Add a webcam or screen to begin',W/2,H/2)}
+  if(sel&&sel.show&&!document.fullscreenElement&&!(rec&&rec.state==='recording')){
+    const r=rectOf(sel);c.setLineDash([12,8]);c.lineWidth=3;c.strokeStyle='#7ff0dc';c.strokeRect(r.x,r.y,r.w,r.h);c.setLineDash([]);
+  }
+}
+(function loop(){draw();requestAnimationFrame(loop)})();
+setInterval(()=>{if(document.hidden)draw()},33);
+
+/* recording */
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+$('#rb').onclick=()=>{rec&&rec.state==='recording'?rec.stop():start()};
+function start(){
+  if(!layers.length||!window.MediaRecorder)return msg('Recording isn’t supported in this browser.');
+  if(outUrl)URL.revokeObjectURL(outUrl); $('#out').hidden=true;
+  const mime=['video/mp4;codecs=avc1.640028,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+  const tracks=[...cv.captureStream(30).getVideoTracks(),...(dst?dst.stream.getAudioTracks():[])];
+  chunks=[]; rec=new MediaRecorder(new MediaStream(tracks),{mimeType:mime,videoBitsPerSecond:6e6});
+  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  rec.onstop=()=>{
+    clearInterval(tick); $('#rb').textContent='Record'; $('#rb').classList.remove('rec'); render();
+    blob=new Blob(chunks,{type:rec.mimeType||mime}); outUrl=URL.createObjectURL(blob);
+    const o=$('#out'); o.hidden=false;
+    o.innerHTML=`<video src="${outUrl}" controls muted></video><button class="btn" id="sv">Save recording</button>`;
+    $('#sv').onclick=save; msg('Recording ready.');
+  };
+  rec.start(1000); t0=Date.now(); $('#rb').textContent='Stop'; $('#rb').classList.add('rec'); msg(mime.includes('mp4')?'Recording…':'Recording… (this browser can only save .webm)');
+  tick=setInterval(()=>$('#tm').textContent=fmt(Math.floor((Date.now()-t0)/1000)),250); $('#tm').textContent='00:00';
+}
+async function save(){
+  const ext=blob.type.includes('mp4')?'mp4':'webm', name=`recording-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.${ext}`;
+  try{
+    const d=window.claude&&await claude.use('downloads');
+    if(d){await d.save({filename:name,data:blob});return}
+  }catch(e){if(e&&e.code==='declined')return}
+  const a=document.createElement('a'); a.href=outUrl; a.download=name; a.click();
+}
 </script>
 </body>
 </html>
